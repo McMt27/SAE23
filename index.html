@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Météo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="conteneur">
+        <h1>Météo par Commune</h1>
+        
+        <form id="formulaire-meteo">
+            <div class="groupe-formulaire">
+                <label for="code-postal">Code Postal :</label>
+                <input type="text" id="code-postal" name="code-postal" placeholder="Entrez un code postal" pattern="[0-9]{5}" required>
+                <small id="indication-code-postal" class="indication">Format : 5 chiffres</small>
+            </div>
+
+            <div class="groupe-formulaire">
+                <label for="selection-commune">Commune :</label>
+                <select id="selection-commune" name="commune" required disabled>
+                    <option value="">Sélectionnez une commune</option>
+                </select>
+            </div>
+
+            <button type="submit" id="bouton-recherche" disabled>
+                Rechercher la météo
+            </button>
+        </form>
+
+        <div id="resultats-meteo" class="conteneur-resultats">
+            <h2>Résultats météorologiques</h2>
+            
+            <div class="grille-resultats">
+                <div class="carte-resultat">
+                    <h3>Température Minimale</h3>
+                    <p id="temperature-minimale">-</p>
+                    <span class="unite">°C</span>
+                </div>
+
+                <div class="carte-resultat">
+                    <h3>Température Maximale</h3>
+                    <p id="temperature-maximale">-</p>
+                    <span class="unite">°C</span>
+                </div>
+
+                <div class="carte-resultat">
+                    <h3>Probabilité de Pluie</h3>
+                    <p id="probabilite-pluie">-</p>
+                    <span class="unite">%</span>
+                </div>
+
+                <div class="carte-resultat">
+                    <h3>Heures d'Ensoleillement</h3>
+                    <p id="heures-ensoleillement">-</p>
+                    <span class="unite">h</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
