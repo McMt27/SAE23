@@ -24,42 +24,34 @@
                 </select>
             </div>
 
+            <div class="groupe-formulaire">
+                <label for="nombre-jours">Nombre de jours de prévisions :</label>
+                <div class="slider-container">
+                    <input type="range" id="nombre-jours" name="nombre-jours" min="1" max="7" value="1" class="slider">
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                    <div class="jours-indicateur">
+                        <span class="nombre-jours-actuel">1</span>
+                        <span class="texte-jours">jour(s) sélectionné(s)</span>
+                    </div>
+                </div>
+            </div>
+
             <button type="submit" id="bouton-recherche" disabled>
-                Rechercher la météo
+                <span class="bouton-texte">Rechercher la météo</span>
+                <span class="bouton-icone">🔍</span>
             </button>
         </form>
 
         <div id="resultats-meteo" class="conteneur-resultats">
-            <h2>Résultats météorologiques</h2>
+            <h2>Prévisions météorologiques</h2>
             
-            <div class="grille-resultats">
-                <div class="carte-resultat">
-                    <h3>❄️ Température Minimale</h3>
-                    <p id="temperature-minimale">-</p>
-                    <span class="unite">°C</span>
-                </div>
-
-                <div class="carte-resultat">
-                    <h3>🌡️ Température Maximale</h3>
-                    <p id="temperature-maximale">-</p>
-                    <span class="unite">°C</span>
-                </div>
-
-                <div class="carte-resultat">
-                    <h3>☔ Probabilité de Pluie</h3>
-                    <p id="probabilite-pluie">-</p>
-                    <span class="unite">%</span>
-                </div>
-
-                <div class="carte-resultat">
-                    <h3>☀️ Heures d'Ensoleillement</h3>
-                    <p id="heures-ensoleillement">-</p>
-                    <span class="unite">h</span>
-                </div>
+            <div id="previsions-container" class="previsions-container">
             </div>
         </div>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
-
