@@ -8,6 +8,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const nombreJoursActuel = document.querySelector(".nombre-jours-actuel");
     const previsionsContainer = document.getElementById("previsions-container");
     const joursLabels = document.querySelectorAll(".jour-label");
+    const checkboxLatitude = document.getElementById("afficher-latitude");
+    const checkboxLongitude = document.getElementById("afficher-longitude");
+    
+    // Variable pour stocker les données de la commune actuelle
+    let communeActuelle = null;
     
     // Initialisation du slider de nombre de jours
     initSliderJours();
@@ -25,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
             communeSelect.innerHTML = '<option value="">Sélectionnez une commune</option>';
             communeSelect.disabled = true;
             boutonRecherche.disabled = true;
+            communeActuelle = null;
         }
     });
     
@@ -88,8 +94,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Fonction asynchrone pour récupérer les communes à partir d'un code postal
     async function rechercherCommunes(codePostal) {
-        // URL de l'API Geo Gouv pour récupérer les communes par code postal
-        const url = `https://geo.api.gouv.fr/communes?codePostal=${codePostal}&fields=nom,code`;
+        // URL de l'API Geo Gouv pour récupérer les communes par code postal avec coordonnées
+        const url = `https://geo.api.gouv.fr/communes?codePostal=${codePostal}&fields=nom,code,centre&format=json&geometry=centre`;
         
         try {
             // Appel à l'API
@@ -103,7 +109,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Parcourt chaque commune retournée et crée une option pour le select
                 data.forEach(commune => {
                     const option = document.createElement("option");
-                    option.value = commune.code; // Code INSEE comme valeur
+                    option.value = JSON.stringify({
+                        code: commune.code,
+                        nom: commune.nom,
+                        latitude: commune.centre ? commune.centre.coordinates[1] : null,
+                        longitude: commune.centre ? commune.centre.coordinates[0] : null
+                    });
                     option.textContent = commune.nom;
                     communeSelect.appendChild(option);
                 });
@@ -119,22 +130,34 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (error) {
             // Gestion des erreurs lors de l'appel API
             console.error("Erreur lors de la récupération des communes :", error);
+            communeSelect.innerHTML = '<option value="">Erreur de connexion</option>';
+            communeSelect.disabled = true;
         }
     }
     
     // Écouteur d'événement sur le changement de sélection de commune
     communeSelect.addEventListener("change", function () {
-        // Active ou désactive le bouton de recherche selon qu'une commune est sélectionnée
-        boutonRecherche.disabled = !communeSelect.value;
+        if (communeSelect.value) {
+            try {
+                communeActuelle = JSON.parse(communeSelect.value);
+                boutonRecherche.disabled = false;
+            } catch (error) {
+                console.error("Erreur lors du parsing des données de commune:", error);
+                boutonRecherche.disabled = true;
+                communeActuelle = null;
+            }
+        } else {
+            boutonRecherche.disabled = true;
+            communeActuelle = null;
+        }
     });
     
     // Écouteur d'événement sur le clic du bouton de recherche
     boutonRecherche.addEventListener("click", function (event) {
         event.preventDefault(); // Empêche le comportement par défaut du formulaire
-        if (communeSelect.value) {
-            // Si une commune est sélectionnée, lance la recherche météo
+        if (communeActuelle) {
             const nombreJours = parseInt(nombreJoursSlider.value);
-            rechercheMeteo(communeSelect.value, nombreJours);
+            rechercheMeteo(communeActuelle.code, nombreJours);
         }
     });
     
@@ -192,7 +215,47 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
         previsionsContainer.appendChild(enTete);
         
-        // Création du conteneur grille pour les jours
+        // Affichage des coordonnées si demandées
+        if (checkboxLatitude.checked || checkboxLongitude.checked) {
+            const coordonneesContainer = document.createElement('div');
+            coordonneesContainer.className = 'coordonnees-container';
+            
+            let coordonneesHTML = '<div class="coordonnees-grille">';
+            
+            if (checkboxLatitude.checked && communeActuelle && communeActuelle.latitude) {
+                coordonneesHTML += `
+                    <div class="coordonnee-carte">
+                        <div class="coordonnee-icone">🌍</div>
+                        <div class="coordonnee-info">
+                            <h4>Latitude</h4>
+                            <p class="coordonnee-valeur">${communeActuelle.latitude.toFixed(6)}°</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (checkboxLongitude.checked && communeActuelle && communeActuelle.longitude) {
+                coordonneesHTML += `
+                    <div class="coordonnee-carte">
+                        <div class="coordonnee-icone">🗺️</div>
+                        <div class="coordonnee-info">
+                            <h4>Longitude</h4>
+                            <p class="coordonnee-valeur">${communeActuelle.longitude.toFixed(6)}°</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            coordonneesHTML += '</div>';
+            coordonneesContainer.innerHTML = coordonneesHTML;
+            previsionsContainer.appendChild(coordonneesContainer);
+        }
+        
+        // Création du conteneur carousel pour les jours
+        const carouselContainer = document.createElement('div');
+        carouselContainer.className = 'carousel-container';
+        
+        // Création de la grille des jours
         const grilleJours = document.createElement('div');
         grilleJours.className = 'grille-jours';
         
@@ -202,7 +265,43 @@ document.addEventListener("DOMContentLoaded", function () {
             grilleJours.appendChild(carteJour);
         });
         
-        previsionsContainer.appendChild(grilleJours);
+        carouselContainer.appendChild(grilleJours);
+        previsionsContainer.appendChild(carouselContainer);
+        
+        // Si plus de 3 jours, ajouter des boutons de navigation
+        if (forecasts.length > 3) {
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'carousel-btn prev';
+            prevBtn.innerHTML = '&#10094;';
+            prevBtn.ariaLabel = 'Prévisions précédentes';
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'carousel-btn next';
+            nextBtn.innerHTML = '&#10095;';
+            nextBtn.ariaLabel = 'Prévisions suivantes';
+            
+            carouselContainer.appendChild(prevBtn);
+            carouselContainer.appendChild(nextBtn);
+            
+            // Ajouter les écouteurs d'événements pour la navigation
+            let scrollAmount = 0;
+            const cardWidth = 240; // largeur approx d'une carte + margin
+            
+            prevBtn.addEventListener('click', () => {
+                if (scrollAmount > 0) {
+                    scrollAmount -= cardWidth;
+                    grilleJours.style.transform = `translateX(-${scrollAmount}px)`;
+                }
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                const maxScroll = (forecasts.length * cardWidth) - carouselContainer.clientWidth;
+                if (scrollAmount < maxScroll) {
+                    scrollAmount += cardWidth;
+                    grilleJours.style.transform = `translateX(-${scrollAmount}px)`;
+                }
+            });
+        }
     }
     
     // Fonction pour créer une carte de prévision pour un jour
@@ -223,11 +322,11 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (index === 1) {
             titreJour = "Demain";
         } else {
-            titreJour = dateFormatee.split(' ')[0]; // Jour de la semaine
+            titreJour = capitalizeFirstLetter(dateFormatee.split(' ')[0]); // Jour de la semaine
         }
         
-        // Obtention de l'icône météo
-        const iconeMeteo = obtenirIconeMeteo(forecast.weather);
+        // Obtention de l'icône météo et du texte descriptif
+        const meteoInfo = obtenirMeteoInfo(forecast.weather);
         
         // Création de l'élément carte
         const carte = document.createElement('div');
@@ -237,21 +336,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h4 class="jour-titre">${titreJour}</h4>
                 <p class="jour-date">${dateFormatee}</p>
             </div>
-            <div class="jour-icone">
-                ${iconeMeteo}
-            </div>
-            <div class="jour-temperatures">
-                <span class="temp-max">${forecast.tmax}°</span>
-                <span class="temp-min">${forecast.tmin}°</span>
-            </div>
-            <div class="jour-details">
-                <div class="detail-item">
-                    <span class="detail-icone">🌧️</span>
-                    <span class="detail-valeur">${forecast.probarain ?? 0}%</span>
+            <div class="jour-content">
+                <div class="jour-icone-container">
+                    <div class="icone-meteo">${meteoInfo.icone}</div>
+                    <p class="meteo-description">${meteoInfo.description}</p>
                 </div>
-                <div class="detail-item">
-                    <span class="detail-icone">☀️</span>
-                    <span class="detail-valeur">${forecast.sun_hours ?? 0}h</span>
+                <div class="jour-temperatures">
+                    <div class="temp-container">
+                        <span class="temp-max">${forecast.tmax}°C</span>
+                        <span class="temp-label">Max</span>
+                    </div>
+                    <div class="temp-divider"></div>
+                    <div class="temp-container">
+                        <span class="temp-min">${forecast.tmin}°C</span>
+                        <span class="temp-label">Min</span>
+                    </div>
+                </div>
+                <div class="jour-details">
+                    <div class="detail-item">
+                        <span class="detail-icone">🌧️</span>
+                        <span class="detail-valeur">${forecast.probarain ?? 0}%</span>
+                        <span class="detail-label">Pluie</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-icone">☀️</span>
+                        <span class="detail-valeur">${forecast.sun_hours ?? 0}h</span>
+                        <span class="detail-label">Soleil</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -259,48 +370,53 @@ document.addEventListener("DOMContentLoaded", function () {
         return carte;
     }
     
-    // Fonction pour obtenir l'icône météo appropriée
-    function obtenirIconeMeteo(weather) {
-        const icones = {
-            0: "☀️", // Soleil
-            1: "🌤️", // Peu nuageux
-            2: "⛅", // Ciel voilé
-            3: "🌥️", // Nuageux
-            4: "☁️", // Très nuageux
-            5: "🌦️", // Couvert
-            6: "🌧️", // Brouillard
-            7: "🌧️", // Brouillard givrant
-            10: "🌦️", // Pluie faible
-            11: "🌧️", // Pluie modérée
-            12: "⛈️", // Pluie forte
-            13: "🌦️", // Pluie faible verglaçante
-            14: "🌧️", // Pluie modérée verglaçante
-            15: "⛈️", // Pluie forte verglaçante
-            16: "🌨️", // Bruine
-            20: "❄️", // Neige faible
-            21: "🌨️", // Neige modérée
-            22: "🌨️❄️", // Neige forte
-            30: "⛈️", // Pluie et neige mêlées faibles
-            31: "⛈️", // Pluie et neige mêlées modérées
-            32: "⛈️", // Pluie et neige mêlées fortes
-            40: "⛈️", // Averses de pluie faible
-            41: "⛈️", // Averses de pluie modérée
-            42: "⛈️", // Averses de pluie forte
-            43: "⛈️", // Averses de pluie faible et neige mêlées
-            44: "⛈️", // Averses de pluie modérée et neige mêlées
-            45: "⛈️", // Averses de pluie forte et neige mêlées
-            60: "❄️", // Averses de neige faible
-            61: "🌨️", // Averses de neige modérée
-            62: "🌨️❄️", // Averses de neige forte
-            70: "⛈️", // Orages faibles et locaux
-            71: "⛈️", // Orages modérés et locaux
-            72: "⛈️", // Orages fort et locaux
-            73: "⛈️", // Orages faibles généralisés
-            74: "⛈️", // Orages modérés généralisés
-            75: "⛈️", // Orages forts généralisés
+    // Fonction pour obtenir les informations météo (icône et description)
+    function obtenirMeteoInfo(weather) {
+        const meteoData = {
+            0: { icone: "☀️", description: "Ensoleillé" },
+            1: { icone: "🌤️", description: "Peu nuageux" },
+            2: { icone: "⛅", description: "Ciel voilé" },
+            3: { icone: "🌥️", description: "Nuageux" },
+            4: { icone: "☁️", description: "Très nuageux" },
+            5: { icone: "🌦️", description: "Couvert" },
+            6: { icone: "🌫️", description: "Brouillard" },
+            7: { icone: "🌫️❄️", description: "Brouillard givrant" },
+            10: { icone: "🌦️", description: "Pluie faible" },
+            11: { icone: "🌧️", description: "Pluie modérée" },
+            12: { icone: "⛈️", description: "Pluie forte" },
+            13: { icone: "🌦️❄️", description: "Pluie verglaçante" },
+            14: { icone: "🌧️❄️", description: "Pluie verglaçante modérée" },
+            15: { icone: "⛈️❄️", description: "Pluie verglaçante forte" },
+            16: { icone: "🌨️", description: "Bruine" },
+            20: { icone: "❄️", description: "Neige faible" },
+            21: { icone: "🌨️", description: "Neige modérée" },
+            22: { icone: "🌨️❄️", description: "Neige forte" },
+            30: { icone: "⛈️", description: "Pluie et neige mêlées" },
+            31: { icone: "⛈️", description: "Pluie et neige modérées" },
+            32: { icone: "⛈️", description: "Pluie et neige fortes" },
+            40: { icone: "🌦️", description: "Averses de pluie" },
+            41: { icone: "🌧️", description: "Averses modérées" },
+            42: { icone: "⛈️", description: "Averses fortes" },
+            43: { icone: "🌨️", description: "Averses de neige" },
+            44: { icone: "🌨️", description: "Averses de neige modérées" },
+            45: { icone: "🌨️❄️", description: "Averses de neige fortes" },
+            60: { icone: "❄️", description: "Neige légère" },
+            61: { icone: "🌨️", description: "Neige modérée" },
+            62: { icone: "🌨️❄️", description: "Neige forte" },
+            70: { icone: "⛈️", description: "Orages faibles" },
+            71: { icone: "⛈️", description: "Orages modérés" },
+            72: { icone: "⛈️", description: "Orages forts" },
+            73: { icone: "⛈️", description: "Orages généralisés" },
+            74: { icone: "⛈️", description: "Orages importants" },
+            75: { icone: "⛈️", description: "Orages violents" },
         };
         
-        return icones[weather] || "🌫️";
+        return meteoData[weather] || { icone: "🌫️", description: "Indéfini" };
+    }
+    
+    // Fonction pour capitaliser la première lettre d'une chaîne
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
     }
     
     // Fonction pour afficher un message d'erreur

@@ -356,3 +356,293 @@ button:disabled::before {
         padding: 1.5rem;
     }
 }
+
+
+/* Styles pour l'affichage des prévisions météo sur plusieurs jours */
+
+/* Conteneur des résultats de prévision */
+.previsions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* En-tête des prévisions avec nom de la ville */
+.previsions-entete {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(46, 134, 171, 0.3);
+}
+
+.previsions-entete h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-star-gold);
+    letter-spacing: 1px;
+}
+
+.info-ville {
+    color: var(--color-cosmic-silver);
+    font-size: 1rem;
+    font-style: italic;
+}
+
+/* Grille pour afficher les jours */
+.grille-jours {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Carte pour chaque jour */
+.carte-jour {
+    background: rgba(26, 35, 50, 0.7);
+    border: 1px solid rgba(46, 134, 171, 0.3);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(13, 20, 33, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effet de brillance au survol */
+.carte-jour::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(46, 134, 171, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+.carte-jour:hover {
+    transform: translateY(-10px);
+    box-shadow: 
+        0 10px 20px rgba(13, 20, 33, 0.5),
+        0 0 15px rgba(46, 134, 171, 0.3);
+    border-color: var(--color-nebula-blue);
+}
+
+.carte-jour:hover::before {
+    opacity: 1;
+    animation: pulse 2s infinite;
+}
+
+/* Style spécial pour la carte du jour actuel */
+.carte-jour.aujourdhui {
+    background: linear-gradient(145deg, rgba(45, 27, 105, 0.5), rgba(46, 134, 171, 0.3));
+    border-color: var(--color-star-gold);
+    box-shadow: 0 0 15px rgba(241, 143, 1, 0.3);
+}
+
+.carte-jour.aujourdhui .jour-titre {
+    color: var(--color-star-gold);
+}
+
+/* En-tête de la carte avec le jour et la date */
+.jour-header {
+    text-align: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(197, 198, 199, 0.1);
+}
+
+.jour-titre {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--color-nebula-blue);
+}
+
+.jour-date {
+    font-size: 0.9rem;
+    color: var(--color-cosmic-silver);
+    font-style: italic;
+}
+
+/* Section icône météo */
+.jour-icone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 0;
+}
+
+.icone-meteo {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+}
+
+.description-meteo {
+    font-size: 1rem;
+    color: var(--color-galaxy-white);
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Section températures */
+.jour-temperatures {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid rgba(197, 198, 199, 0.1);
+    border-bottom: 1px solid rgba(197, 198, 199, 0.1);
+}
+
+.temp-max, .temp-min {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.temp-valeur {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-secondary);
+}
+
+.temp-max .temp-valeur {
+    color: var(--color-mars);
+}
+
+.temp-min .temp-valeur {
+    color: var(--color-neptune);
+}
+
+.temp-label {
+    font-size: 0.8rem;
+    color: var(--color-cosmic-silver);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.temperature-separateur {
+    height: 40px;
+    width: 1px;
+    background: rgba(197, 198, 199, 0.2);
+}
+
+/* Détails supplémentaires */
+.jour-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.detail-icone {
+    font-size: 1.2rem;
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4));
+}
+
+.detail-label {
+    flex-grow: 1;
+    color: var(--color-cosmic-silver);
+}
+
+.detail-valeur {
+    font-weight: 600;
+    color: var(--color-galaxy-white);
+}
+
+/* Animation pour l'effet de brillance */
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+/* Media queries pour le responsive */
+@media (max-width: 768px) {
+    .grille-jours {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+    
+    .carte-jour {
+        padding: 1.25rem;
+    }
+    
+    .icone-meteo {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .grille-jours {
+        grid-template-columns: 1fr;
+    }
+    
+    .previsions-entete h3 {
+        font-size: 1.5rem;
+    }
+    
+    .carte-jour {
+        transform: none !important;
+    }
+}
+
+/* Styles pour les animations de transition */
+.carte-jour {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Délais d'animation basés sur l'index de la carte */
+.carte-jour:nth-child(1) { animation-delay: 0.1s; }
+.carte-jour:nth-child(2) { animation-delay: 0.2s; }
+.carte-jour:nth-child(3) { animation-delay: 0.3s; }
+.carte-jour:nth-child(4) { animation-delay: 0.4s; }
+.carte-jour:nth-child(5) { animation-delay: 0.5s; }
+.carte-jour:nth-child(6) { animation-delay: 0.6s; }
+.carte-jour:nth-child(7) { animation-delay: 0.7s; }
+
+/* Style pour l'indicateur de chargement */
+.chargement {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(46, 134, 171, 0.2);
+    border-top-color: var(--color-nebula-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
