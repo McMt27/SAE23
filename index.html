@@ -1,77 +1,105 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Météo</title>
+    <title>Météo France - Prévisions par Commune</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
+
 <body>
-    <div class="conteneur">
-        <h1>Météo par Commune</h1>
-        
-        <form id="formulaire-meteo">
-            <div class="groupe-formulaire">
-                <label for="code-postal">Code Postal :</label>
-                <input type="text" id="code-postal" name="code-postal" placeholder="Entrez un code postal" pattern="[0-9]{5}" required>
-                <small id="indication-code-postal" class="indication">Format : 5 chiffres</small>
-            </div>
+    <div class="container">
+        <header class="header">
+            <h1>🌤️ Météo France</h1>
+            <p class="subtitle">Prévisions météorologiques par commune</p>
+        </header>
 
-            <div class="groupe-formulaire">
-                <label for="selection-commune">Commune :</label>
-                <select id="selection-commune" name="commune" required disabled>
-                    <option value="">Sélectionnez une commune</option>
-                </select>
-            </div>
+        <div class="search-section">
+            <form id="weather-form">
+                <div class="form-group">
+                    <label for="postal-code">Code Postal</label>
+                    <input type="text" id="postal-code" placeholder="Ex: 75001" pattern="[0-9]{5}" required>
+                </div>
 
-            <div class="groupe-formulaire">
-                <label for="nombre-jours">Nombre de jours de prévisions :</label>
-                <div class="slider-container">
-                    <input type="range" id="nombre-jours" name="nombre-jours" min="1" max="7" value="1" class="slider">
-                    <div class="slider-track">
-                        <div class="slider-fill"></div>
-                        <div class="slider-thumb"></div>
-                    </div>
-                    <div class="jours-indicateur">
-                        <span class="nombre-jours-actuel">1</span>
-                        <span class="texte-jours">jour(s) sélectionné(s)</span>
+                <div class="form-group">
+                    <label for="commune-select">Commune</label>
+                    <select id="commune-select" required disabled>
+                        <option value="">Sélectionnez une commune</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre de jours de prévisions</label>
+                    <div class="days-selector">
+                        <div class="day-option active" data-days="1">1 jour</div>
+                        <div class="day-option" data-days="2">2 jours</div>
+                        <div class="day-option" data-days="3">3 jours</div>
+                        <div class="day-option" data-days="4">4 jours</div>
+                        <div class="day-option" data-days="5">5 jours</div>
+                        <div class="day-option" data-days="6">6 jours</div>
+                        <div class="day-option" data-days="7">7 jours</div>
                     </div>
                 </div>
-            </div>
 
-            <div class="groupe-formulaire">
-                <label>Informations supplémentaires :</label>
-                <div class="options-container">
+                <div class="form-group">
+                    <label>Informations supplémentaires</label>
                     <div class="checkbox-group">
-                        <input type="checkbox" id="afficher-latitude" name="afficher-latitude">
-                        <label for="afficher-latitude" class="checkbox-label">
-                            <span class="checkbox-icone">🌍</span>
-                            Latitude décimale de la commune
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show-coordinates">
+                            <span class="checkmark"></span>
+                            Afficher les coordonnées
                         </label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="afficher-longitude" name="afficher-longitude">
-                        <label for="afficher-longitude" class="checkbox-label">
-                            <span class="checkbox-icone">🗺️</span>
-                            Longitude décimale de la commune
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show-rain">
+                            <span class="checkmark"></span>
+                            Cumul de pluie détaillé
                         </label>
                     </div>
                 </div>
+
+                <button type="submit" id="search-btn" class="search-button" disabled>
+                    <span>Rechercher la météo</span>
+                    <span class="btn-icon">🔍</span>
+                </button>
+            </form>
+        </div>
+
+        <div id="results-section" class="results-section hidden">
+            <div class="location-info">
+                <h2 id="location-name"></h2>
+                <div id="coordinates-info" class="coordinates hidden"></div>
             </div>
 
-            <button type="submit" id="bouton-recherche" disabled>
-                <span class="bouton-texte">Rechercher la météo</span>
-                <span class="bouton-icone">🔍</span>
-            </button>
-        </form>
+            <div class="content-grid">
+                <div class="map-container">
+                    <h3>📍 Localisation</h3>
+                    <div id="map"></div>
+                </div>
 
-        <div id="resultats-meteo" class="conteneur-resultats">
-            <h2>Prévisions météorologiques</h2>
-            
-            <div id="previsions-container" class="previsions-container">
+                <div class="weather-container">
+                    <h3>🌤️ Prévisions météorologiques</h3>
+                    <div id="weather-cards" class="weather-cards"></div>
+                </div>
             </div>
         </div>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Chargement des prévisions...</p>
+        </div>
+
+        <div id="error" class="error hidden">
+            <div class="error-icon">⚠️</div>
+            <h3>Erreur</h3>
+            <p id="error-message"></p>
+            <button onclick="location.reload()" class="retry-btn">Réessayer</button>
+        </div>
     </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
