@@ -44,7 +44,6 @@
       --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* === Mode Sombre === */
     [data-theme="dark"] {
       --text-primary: #f8fafc;
       --text-secondary: #cbd5e1;
@@ -56,7 +55,7 @@
       --border-medium: #475569;
     }
 
-    /* === Reset === */
+
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -73,7 +72,6 @@
       overflow-x: hidden;
     }
 
-    /* === Header === */
     .header {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       color: white;
@@ -112,7 +110,6 @@
       font-weight: 400;
     }
 
-    /* === Theme Toggle === */
     .theme-toggle {
       position: fixed;
       top: 1rem;
@@ -150,14 +147,12 @@
       transform: scale(1.1);
     }
 
-    /* === Container === */
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 1rem;
     }
 
-    /* === Form Section === */
     .form-section {
       background: var(--bg-primary);
       margin: -2rem 1rem 2rem;
@@ -209,7 +204,6 @@
       cursor: not-allowed;
     }
 
-    /* === Days Selector === */
     .days-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -241,7 +235,7 @@
       transform: scale(1.05);
     }
 
-    /* === Checkboxes === */
+
     .checkbox-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -301,7 +295,6 @@
       transition: var(--transition);
     }
 
-    /* === Submit Button === */
     .submit-btn {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       color: white;
@@ -331,7 +324,6 @@
       transform: none;
     }
 
-    /* === Results Section === */
     .results {
       margin: 2rem 1rem;
       display: none;
@@ -379,7 +371,6 @@
       font-weight: 500;
     }
 
-    /* === Content Grid === */
     .content-grid {
       display: grid;
       grid-template-columns: 1fr 2fr;
@@ -411,7 +402,7 @@
       box-shadow: var(--shadow);
     }
 
-    /* === Historique des recherches === */
+
 .history-section {
   background: var(--bg-primary);
   margin: 1.5rem 1rem;
@@ -552,7 +543,7 @@
       font-weight: 500;
     }
 
-    /* === Loading & Error === */
+
     .loading, .error {
       text-align: center;
       padding: 3rem 2rem;
@@ -629,7 +620,6 @@
       }
     }
 
-    /* === Hidden === */
     .hidden {
       display: none !important;
     }

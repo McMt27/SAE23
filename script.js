@@ -1,4 +1,4 @@
-// 🌙 Thème sombre / clair
+// Thème sombre / clair
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 
@@ -15,7 +15,7 @@ themeToggle.addEventListener('click', () => {
   updateTheme(currentTheme !== 'dark');
 });
 
-// 🌦️ Météo App
+// Météo App
 const elements = {
   form: document.getElementById('weather-form'),
   postalCode: document.getElementById('postal-code'),
@@ -112,8 +112,8 @@ function renderWeather(data) {
 
   if (elements.showCoordinates.checked) {
     elements.coordinates.innerHTML = `
-      <div class="coord-chip">Lat: ${currentCommune.latitude.toFixed(4)}°</div>
-      <div class="coord-chip">Lng: ${currentCommune.longitude.toFixed(4)}°</div>
+      <div class="coord-chip">Latitude: ${currentCommune.latitude.toFixed(4)}°</div>
+      <div class="coord-chip">Longitude: ${currentCommune.longitude.toFixed(4)}°</div>
     `;
     elements.coordinates.classList.remove('hidden');
   } else {
