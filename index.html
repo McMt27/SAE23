@@ -2,104 +2,128 @@
 <html lang="fr">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Météo France - Prévisions par Commune</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instant Weather</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>🌤️ Météo France</h1>
-            <p class="subtitle">Prévisions météorologiques par commune</p>
-        </header>
+  <div class="theme-toggle">
+    <button class="toggle-btn" id="theme-toggle" aria-label="Changer le thème">
+      <span id="theme-icon">🌙</span>
+    </button>
+  </div>
 
-        <div class="search-section">
-            <form id="weather-form">
-                <div class="form-group">
-                    <label for="postal-code">Code Postal</label>
-                    <input type="text" id="postal-code" placeholder="Ex: 75001" pattern="[0-9]{5}" required>
-                </div>
+  <header class="header">
+    <div class="header-content">
+      <h1>🌦️ Instant Weather</h1>
+      <p>Vos prévisions météo avec une interface moderne</p>
+    </div>
+  </header>
 
-                <div class="form-group">
-                    <label for="commune-select">Commune</label>
-                    <select id="commune-select" required disabled>
-                        <option value="">Sélectionnez une commune</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Nombre de jours de prévisions</label>
-                    <div class="days-selector">
-                        <div class="day-option active" data-days="1">1 jour</div>
-                        <div class="day-option" data-days="2">2 jours</div>
-                        <div class="day-option" data-days="3">3 jours</div>
-                        <div class="day-option" data-days="4">4 jours</div>
-                        <div class="day-option" data-days="5">5 jours</div>
-                        <div class="day-option" data-days="6">6 jours</div>
-                        <div class="day-option" data-days="7">7 jours</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Informations supplémentaires</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="show-coordinates">
-                            <span class="checkmark"></span>
-                            Afficher les coordonnées
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="show-rain">
-                            <span class="checkmark"></span>
-                            Cumul de pluie détaillé
-                        </label>
-                    </div>
-                </div>
-
-                <button type="submit" id="search-btn" class="search-button" disabled>
-                    <span>Rechercher la météo</span>
-                    <span class="btn-icon">🔍</span>
-                </button>
-            </form>
+  <div class="container">
+    <section class="form-section">
+      <form id="weather-form" class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="postal-code">Code Postal</label>
+          <input type="text" id="postal-code" class="form-input" placeholder="Ex: 75001" pattern="[0-9]{5}" required>
         </div>
 
-        <div id="results-section" class="results-section hidden">
-            <div class="location-info">
-                <h2 id="location-name"></h2>
-                <div id="coordinates-info" class="coordinates hidden"></div>
-            </div>
-
-            <div class="content-grid">
-                <div class="map-container">
-                    <h3>📍 Localisation</h3>
-                    <div id="map"></div>
-                </div>
-
-                <div class="weather-container">
-                    <h3>🌤️ Prévisions météorologiques</h3>
-                    <div id="weather-cards" class="weather-cards"></div>
-                </div>
-            </div>
+        <div class="form-group">
+          <label class="form-label" for="commune-select">Commune</label>
+          <select id="commune-select" class="form-select" required disabled>
+            <option value="">Sélectionnez une commune</option>
+          </select>
         </div>
 
-        <div id="loading" class="loading hidden">
-            <div class="spinner"></div>
-            <p>Chargement des prévisions...</p>
+        <div class="form-group">
+          <label class="form-label">Nombre de jours de prévisions</label>
+          <div class="days-grid">
+            <div class="day-btn active" data-days="1">1j</div>
+            <div class="day-btn" data-days="2">2j</div>
+            <div class="day-btn" data-days="3">3j</div>
+            <div class="day-btn" data-days="4">4j</div>
+            <div class="day-btn" data-days="5">5j</div>
+            <div class="day-btn" data-days="6">6j</div>
+            <div class="day-btn" data-days="7">7j</div>
+          </div>
         </div>
 
-        <div id="error" class="error hidden">
-            <div class="error-icon">⚠️</div>
-            <h3>Erreur</h3>
-            <p id="error-message"></p>
-            <button onclick="location.reload()" class="retry-btn">Réessayer</button>
+        <div class="form-group">
+          <label class="form-label">Options</label>
+          <div class="checkbox-grid">
+            <label class="checkbox-item">
+              <div class="checkbox">
+                <input type="checkbox" id="show-coordinates">
+                <div class="checkmark"></div>
+              </div>
+              Coordonnées GPS
+            </label>
+            <label class="checkbox-item">
+              <div class="checkbox">
+                <input type="checkbox" id="show-rain">
+                <div class="checkmark"></div>
+              </div>
+              Pluie
+            </label>
+            <label class="checkbox-item">
+              <div class="checkbox">
+                <input type="checkbox" id="show-wind">
+                <div class="checkmark"></div>
+              </div>
+              Vent
+            </label>
+            <label class="checkbox-item">
+              <div class="checkbox">
+                <input type="checkbox" id="show-wind-direction">
+                <div class="checkmark"></div>
+              </div>
+              Direction du vent
+            </label>
+          </div>
         </div>
+
+        <button type="submit" id="search-btn" class="submit-btn" disabled>
+          <span>🔍</span>
+          <span>Obtenir les prévisions</span>
+        </button>
+      </form>
+    </section>
+
+    <section class="history-section">
+      <h3 class="section-title">📜 Historique</h3>
+      <ul id="history-list" class="history-list"></ul>
+    </section>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <h3>Chargement des prévisions...</h3>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js"></script>
+    <div id="results" class="results">
+      <div class="location-header">
+        <h2 class="location-name" id="location-name"></h2>
+        <div id="coordinates" class="coordinates hidden"></div>
+      </div>
+
+      <div class="content-grid">
+        <div class="map-section">
+          <h3 class="section-title">📍 Localisation</h3>
+          <div id="map"></div>
+        </div>
+
+        <div class="weather-section">
+          <h3 class="section-title">🌤️ Prévisions</h3>
+          <div id="weather-cards" class="weather-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
 </body>
 
 </html>
